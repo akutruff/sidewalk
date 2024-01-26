@@ -71,9 +71,9 @@ This will build a docker image of the web ui and 311 submission.  Each person sh
 
 Here's a good set of gear for Frigate running at full 30fps at the highest resolution.
 
-- (Coral USB accelerator)[https://coral.ai/products/accelerator/]
-- (Beelink S12 Pro Mini PC)[https://www.amazon.com/gp/product/B0BVLS7ZHP/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&th=1] but must be installed with the absolute latest version of Ubuntu to support the N100 and hardware acceleration
-- (EmpireTech Ultra Low Light IPC-T54IR-ZE)[https://www.amazon.com/gp/product/B08LCY27TD/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1] - this is a rebranded Dahua camera that is excellent at night as well as day.
+- [Coral USB accelerator](https://coral.ai/products/accelerator/) - allows real-time inferece.
+- [Beelink S12 Pro Mini PC](https://www.amazon.com/gp/product/B0BVLS7ZHP/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&th=1) but must be installed with th latest version of Ubuntu to support the N100 and hardware acceleration
+- [EmpireTech Ultra Low Light IPC-T54IR-ZE](https://www.amazon.com/gp/product/B08LCY27TD/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1) - this is a rebranded Dahua camera that is excellent at night as well as day.
 
 7. Draw zones in Frigate for where you want to detect objects.
 8. Copy the zone coordinates to the `zones.json` file in the `checker/config` directory
@@ -90,3 +90,10 @@ Files structure:
 10. fillout `service-request-definitions.json` that describes the potential 311 violation to associate with each zone. 
 
 11. Fill out the various values `.env` file and `docker-compose.yml` for `sidewalk`. 
+
+12. Verify sidewalk is up and running and able to fetch events from frigate after you've detected something.
+
+13. Setup the `checker` container that needs to run on a PC with a GPU.  This container will download clips from frigate and run the a much stronger AI to reduce false positives.  The container will scan events every 5 minutes so keep that in mind as you review clips.
+
+13. Do the instructions at the top of the page carefully and perform dry run before doing any submission.  Verify that all your screenshots make sense and have correct information. You can also just work with one clip at a time by only validating the oldest clip that appears on the "review clips" page.  The rest of the events will be ignored.
+
