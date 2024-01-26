@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  sidewalk:
+    container_name: sidewalk
+    image: ${IMAGE_TAG}    
+    depends_on:
+      - browserless
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - 3010:3010
+      - 8080:8080
+    volumes:
+      # Where your validated events are stored      
+      - ../sidewalk-events:/data
+      # Manually pointing to the local copy of your config.  You can just copy the file to ../sidewalk-events/config 
+      #  and remove this line also.  
+      - ./config/service-request-definitions.json:/data/config/service-request-definitions.json
+      - db:/db
+
+  browserless:
+    container_name: sidewalk-browserless
+    image: ghcr.io/browserless/chrome
+    restart: always
+    environment:
+      - TZ=America/New_York
+      - CONNECTION_TIMEOUT=480000
+      - TOKEN=${TOKEN}
+    ports:
+      - 3000:3000
+    volumes:
+      # Where your validated events are stored.  Allows 311 file uploads
+      - ../sidewalk-events:/data
+
+volumes:
+  db: {}

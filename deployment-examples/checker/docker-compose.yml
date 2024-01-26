@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  sidewalk-checker:
+    image: akutruff/sidewalk-checker:latest
+    container_name: sidewalk-checker
+    privileged: true # this may not be necessary for all setups
+
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./local-events:/local-events
+      - ./data:/data
+      - ./deleted:/deleted
+      - ./config/:/config
+      - ../sidewalk-events:/sidewalk-events
+
+    ports:
+      - "5000:5000"
+      - "8554:8554" # RTSP feeds
+      - "8555:8555/tcp" # WebRTC over tcp
+      - "8555:8555/udp" # WebRTC over udp
+    environment:
+      # Sidewalk web address
+      SIDEWALK_URL: "sidewalk.home.arpa:3010"
+      # Frigate web address
+      FRIGATE_URL: 'frigate.home.arpa:5000'
+      # Optional to record a video showing bounding boxes and reencode it in mp4 format.
+      # SHOW_VIDEO_ARGS: "--show-video"
+    
+    # GPU support. See https://docs.docker.com/compose/gpu-support/
+    deploy:    
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

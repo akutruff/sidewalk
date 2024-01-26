@@ -1,0 +1,12 @@
+[
+    {
+        "zoneNames": ["sidewalk-north"],
+        "address": "123 main st.",
+        "problemDescription": "People are riding bicycles, e-bikes, and mopeds on the sidewalk on the north-side of the street.  It is illegal and dangerous."
+    },
+    {
+        "zoneNames": ["sidewalk-south"],
+        "address": "124 main st.",
+        "problemDescription": "Please look closely ACROSS THE STREET.  The violating riders will be small in the video.\n\nPeople are dangerously riding bicycles, e-bikes, and mopeds on the sidewalk.   It is illegal and dangerous."
+    }
+]

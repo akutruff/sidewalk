@@ -1,0 +1,10 @@
+!.env
+*.mp4
+*.avi
+local-events/
+deleted/
+data/
+results/
+*.pt
+frigate-data/
+sidewalk-events/

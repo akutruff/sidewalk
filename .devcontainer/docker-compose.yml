@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+      args:
+        # Update 'VARIANT' to pick a version of Python: 3, 3.10, 3.9, 3.8, 3.7, 3.6
+        # Append -bullseye or -buster to pin to an OS version.
+        # Use -bullseye variants on local arm64/Apple Silicon.
+        # Optional Node.js version to install
+        NODE_VERSION: "lts/*"
+    privileged: true
+    volumes:
+      - ../..:/workspaces:cached
+      - aws-credentials:/home/node/.aws
+      - project-data:/data
+      - /d/311-events:/workspaces/sidewalk/data:cached
+      - /d:/mnt/d:cached
+
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+    network_mode: host
+
+  browserless:
+    image: ghcr.io/browserless/chrome
+    # restart: always
+    environment:
+      - TZ=America/New_York
+      - CONNECTION_TIMEOUT=480000
+      - TOKEN=2cbc5771-38f2-4dcf-8774-50ad51a971b8
+    ports:
+      - 3000:3000
+    volumes:
+      - /d/311-events:/data:cached
+    network_mode: host
+
+volumes:
+  aws-credentials: {}
+  postgres-data: {}
+  project-data: {}
+  pgAdmin-data: {}
+  pgAdmin-user-data: {}
+  grafana: {}

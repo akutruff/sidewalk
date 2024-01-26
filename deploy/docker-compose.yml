@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  browserless:
+    container_name: sidewalk-browserless
+    image: ghcr.io/browserless/chrome
+    restart: always
+    environment:
+      - TZ=America/New_York
+      - CONNECTION_TIMEOUT=480000
+      - TOKEN=${TOKEN}
+    ports:
+      - 3000:3000
+    volumes:
+      - nas:/data
+
+  sidewalk:
+    container_name: sidewalk
+    image: akutruff/sidewalk
+    depends_on:
+      - browserless
+    build:
+      context: ../
+      x-bake:
+        platforms:
+          # - linux/amd64
+          - linux/arm64
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - 3010:3010
+      - 8080:8080
+    volumes:
+      - nas:/data:cached
+      - db:/db
+
+volumes:
+  db: {}
+  nas:
+    driver_opts:
+      type: cifs
+      o: "username=${NAS_USERNAME},password=${NAS_PASSWORD:?need to set NAS_PASSWORD},addr=${NAS_ADDR},vers=3.02,mfsymlinks,file_mode=0777,dir_mode=0777"
+      device: "${NAS_PATH}"

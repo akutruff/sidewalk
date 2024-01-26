@@ -1,0 +1,1 @@
+docker build --push -t akutruff/sidewalk-checker . 

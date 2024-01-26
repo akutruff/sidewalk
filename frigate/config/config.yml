@@ -1,0 +1,76 @@
+# yaml-language-server: $schema=http://squanchy.gsd.farm:5000/api/config/schema.json
+
+mqtt:
+  enabled: False
+
+ffmpeg:
+  hwaccel_args: preset-vaapi
+  # Raspberry Pi 4 (not recommended)
+  # hwaccel_args: preset-rpi-64-h264
+  # environment_vars:
+  #   LIBVA_DRIVER_NAME: i965
+
+detectors:
+  coral:
+    type: edgetpu
+    device: usb
+
+database:
+  path: /db/frigate.db
+
+objects:
+  track:
+    - motorcycle
+    - bicycle
+  filters:
+    motorcycle:
+      # Optional: minimum score for the object to initiate tracking (default: 0.5)
+      min_score: 0.4
+      # Optional: minimum decimal percentage for tracked object's computed score to be considered a true positive (default: 0.7)
+      threshold: 0.6
+      min_area: 5000
+    bicycle:
+      # Optional: minimum score for the object to initiate tracking (default: 0.5)
+      min_score: 0.4
+      # Optional: minimum decimal percentage for tracked object's computed score to be considered a true positive (default:0.7)
+      threshold: 0.6
+      min_area: 5000
+
+cameras:
+  dahua-0: # <------ Name the camera
+    ffmpeg:
+      inputs:
+        - path: rtsp://admin:{FRIGATE_RTSP_PASSWORD}@10.10.201.131:554/cam/realmonitor?channel=1&subtype=0 # <----- Update for your camera        
+          roles:
+            - detect
+            - record
+    detect:
+      enabled: True
+      width: 2668 # <---- update for your camera's resolution
+      height: 1520 # <---- update for your camera's resolution
+      fps: 30 # <---- update for your camera's FPS
+    record: # <----- Enable recording
+      enabled: True
+      events:
+        pre_capture: 5
+        post_capture: 5
+        required_zones:
+          - sidewalk-north
+          - sidewalk-south
+    snapshots: # <----- Enable snapshots
+      enabled: True
+      required_zones:
+        - sidewalk-north
+        - sidewalk-south
+    motion:
+      mask:
+        - 513,472,2119,458,2668,521,2668,0,0,0,0,537
+    zones:
+      # normal day 
+      # sidewalk-north:
+      #   coordinates: 598,1020,1352,1058,2134,1023,2668,958,2668,1520,0,1520,0,932
+      # trash day
+      sidewalk-north:
+        coordinates: 905,1039,1352,1058,2134,1023,2668,958,2668,1520,0,1520,787,1488
+      sidewalk-south:
+        coordinates: 844,619,1546,622,2423,658,2429,576,1530,521,724,532,0,576,0,661

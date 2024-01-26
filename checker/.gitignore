@@ -1,0 +1,8 @@
+*.mp4
+*.avi
+events/**/results.json
+deleted/**
+data/**
+results/**
+runs/**
+*.pt

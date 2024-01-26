@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  frigate:
+    # image: ghcr.io/blakeblackshear/frigate:stable
+    image: ghcr.io/blakeblackshear/frigate:0.13.0-beta7
+    container_name: frigate
+    privileged: true # this may not be necessary for all setups
+    restart: always
+    shm_size: "64mb" # update for your cameras based on calculation above
+    cap_add:
+      - CAP_PERFMON
+    devices:
+      - /dev/bus/usb:/dev/bus/usb # passes the USB Coral, needs to be modified for other versions
+      - /dev/video10
+      - /dev/video11
+      - /dev/video12
+      - /dev/video13
+      - /dev/video14
+      - /dev/video15
+      - /dev/video16
+      # - /dev/video17
+      - /dev/video18
+      - /dev/video20
+      - /dev/video21
+      - /dev/video22
+      - /dev/video23
+      - /dev/video31
+      #  - /dev/apex_0:/dev/apex_0 # passes a PCIe Coral, follow driver instructions here https://coral.ai/docs/m2/get-started/#2a-on-linux
+      #  - /dev/dri/renderD128 # for intel hwaccel, needs to be updated for your hardware
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/ubuntu/frigate/config:/config
+      - /home/ubuntu/frigate/db:/db
+      - nas:/media/frigate
+      - type: tmpfs # Optional: 1GB of memory, reduces SSD/SD Card wear
+        target: /tmp/cache
+        tmpfs:
+          size: 1000000000
+    ports:
+      - "5000:5000"
+      - "8554:8554" # RTSP feeds
+      - "8555:8555/tcp" # WebRTC over tcp
+      - "8555:8555/udp" # WebRTC over udp
+    environment:
+      FRIGATE_RTSP_PASSWORD: ${FRIGATE_RTSP_PASSWORD}
+
+volumes:
+  nas:
+    driver_opts:
+      type: cifs
+      o: "username=${NAS_USERNAME},password=${NAS_PASSWORD},addr=${NAS_ADDR},vers=3.02,mfsymlinks,file_mode=0777,dir_mode=0777"
+      device: "${NAS_PATH}"
