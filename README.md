@@ -50,9 +50,8 @@ This was a quickly constructed side project that grew fast and so it is very cob
 
 1. Pull this repository
 2. Make sure you have Docker installed and a dockerhub account.
-3. Run:
 
-4. Run:
+3. Run:
 
 ```bash
 ./build.sh -t <your dockerhub username>/sidewalk:latest
@@ -62,9 +61,9 @@ This will also create docker buildx builder that supports multi-platform builds.
 
 This will build a docker image of the web ui and 311 submission.  Each person should maintain their own docker image.  I will not be releasing a public docker image for the web ui and 311 submission.
 
-5. copy the `deployment-examples` directory to someplace else and use it as a template for your setup.
+4. copy the `deployment-examples` directory to someplace else and use it as a template for your setup.
 
-6. Get the (Frigate)[frigate.video] configuration setup and working.  Go slowly with the instructions.   
+5. Get the (Frigate)[frigate.video] configuration setup and working.  Go slowly with the instructions.   
 
 Here's a good set of gear for Frigate running at full 30fps at the highest resolution.
 
@@ -72,9 +71,9 @@ Here's a good set of gear for Frigate running at full 30fps at the highest resol
 - [Beelink S12 Pro Mini PC](https://www.amazon.com/gp/product/B0BVLS7ZHP/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&th=1) but must be installed with th latest version of Ubuntu to support the N100 and hardware acceleration
 - [EmpireTech Ultra Low Light IPC-T54IR-ZE](https://www.amazon.com/gp/product/B08LCY27TD/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1) - this is a rebranded Dahua camera that is excellent at night as well as day.
 
-7. Draw zones in Frigate for where you want to detect objects.
-8. Copy the zone coordinates you created in Frigate to the `zones.json` file in the `checker/config` directory making sure the names are the same.
-9. Setup `sidewalk` storage
+6. Draw zones in Frigate for where you want to detect objects.
+7. Copy the zone coordinates you created in Frigate to the `zones.json` file in the `checker/config` directory making sure the names are the same.
+8. Setup `sidewalk` storage
 
 You should pick a single storage location as your source of truth to store all files that are downloaded from frigate and submitted to 311. 
 
@@ -84,12 +83,12 @@ Files structure:
 `311-events/events-staging` - Temporary storage for when you are reviewing clips and tracks how many times you removed them. This folder may be emptied.
 `311-events/config` - Stores configuration files such as `service-request-definitions.json`
 
-10. Fillout `service-request-definitions.json` that describes the potential 311 violation to associate with each zone. 
+9. Fillout `service-request-definitions.json` that describes the potential 311 violation to associate with each zone. 
 
-11. Fill out the various values `.env` file and `docker-compose.yml` for `sidewalk`. 
+10. Fill out the various values `.env` file and `docker-compose.yml` for `sidewalk`. 
 
-12. Verify sidewalk is up and running and able to fetch events from frigate after you've detected something.
+11. Verify sidewalk is up and running and able to fetch events from frigate after you've detected something.
 
-13. Setup the `checker` container that needs to run on a PC with a GPU.  This container will download clips from frigate and run the a much stronger AI to reduce false positives.  The container will scan events every 5 minutes so keep that in mind as you review clips.
+12. Setup the `checker` container that needs to run on a PC with a GPU.  This container will download clips from frigate and run the a much stronger AI to reduce false positives.  The container will scan events every 5 minutes so keep that in mind as you review clips.
 
 13. Do the instructions at the top of the page carefully and perform dry run before doing any submission.  Verify that all your screenshots make sense and have correct information. You can also just work with one clip at a time by only validating the oldest clip that appears on the "review clips" page.  The rest of the events will be ignored.
