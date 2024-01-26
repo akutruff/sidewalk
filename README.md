@@ -44,7 +44,7 @@ This was a quickly constructed side project that grew fast and so it is very cob
 1. Check the 'dry run' box, and then click 'submit'
 1. The system will fillout out the 311 web page but not click the final submit button on the page as it is a dry run. At this stage, you should go to the `shots` directory under the event folder that you tried to submit. Inside there are screenshots. Look at the last shots to verify that the all of the 311 information is correct and that your contact information is up to date.  You should also see a file attached in the clip matching your file name, or a link to the S3 file will be in the description if you are using S3.
 1. If everything looks good, uncheck the dry run box and click submit again.
-1. The system will record the submission in json files in each events directory along with the screenshots. DO NOT DELETE THESE FILES AND BACK THEM UP. They are your only record of what was submitted to 311, and the presenece of the service request json prevents the system from submitting the same clip twice.
+1. The system will record the submission in json files in each events directory along with the screenshots. DO NOT DELETE THESE FILES AND BACK THEM UP. They are your only record of what was submitted to 311, and the presence of the service request json prevents the system from submitting the same clip twice.
 
 ## Setup.
 
