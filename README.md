@@ -31,7 +31,7 @@ This was a quickly constructed side project that grew fast and so it is very cob
 ## High level overview
 
 1. Setup a camera in a fixed location where it will never be moved.
-1. Run [Frigate](frigate.video) to dettect objects in the camera's view by drawing zones and tuning the AI.
+1. Run [Frigate](frigate.video) to detect objects in the camera's view by drawing zones and tuning the AI.
 1. As objects are detected in zones, they will be recorded as events in Frigate.
 1. Fill out the many configuration files that includes your login information, the problem description, the address.
 1. Run the checker script on a powerful PC that will review the frigate events with Ultralytics to greatly reduce false positives. It will review clips every 5 minutes.
