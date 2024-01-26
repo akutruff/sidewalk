@@ -59,11 +59,11 @@ This was a quickly constructed side project that grew fast and so it is very cob
 
 This will also create docker buildx builder that supports multi-platform builds. (use `docker buildx ls` to see the new builder)
 
-This will build a docker image of the web ui and 311 submission.  Each person should maintain their own docker image.  I will not be releasing a public docker image for the web ui and 311 submission.
+This will build a docker image of the web ui and 311 submitter.  Each person should maintain their own docker image.  I will not be releasing a public docker image for this part of the project.
 
-4. copy the `deployment-examples` directory to someplace else and use it as a template for your setup.
+4. Copy the `deployment-examples` directory to someplace else and use it as a template for your setup.
 
-5. Get the (Frigate)[frigate.video] configuration setup and working.  Go slowly with the instructions.   
+5. Get the [Frigate](frigate.video) configuration setup and working.  Go slowly with the instructions.   
 
 Here's a good set of gear for Frigate running at full 30fps at the highest resolution.
 
@@ -77,7 +77,7 @@ Here's a good set of gear for Frigate running at full 30fps at the highest resol
 
 You should pick a single storage location as your source of truth to store all files that are downloaded from frigate and submitted to 311. 
 
-Files structure:
+File structure:
 
 `311-events/events` - Stores all events, 311 website screenshots, frigate metadata, and the service request number.  (NEVER delete anything in this directoy. It is your database of events that you have submitted to 311) Back this up to Google Drive or a similar service.
 `311-events/events-staging` - Temporary storage for when you are reviewing clips and tracks how many times you removed them. This folder may be emptied.
