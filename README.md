@@ -68,7 +68,7 @@ This will build a docker image of the web ui and 311 submitter.  Each person sho
 Here's a good set of gear for Frigate running at full 30fps at the highest resolution.
 
 - [Coral USB accelerator](https://coral.ai/products/accelerator/) - allows real-time inferece.
-- [Beelink S12 Pro Mini PC](https://www.amazon.com/gp/product/B0BVLS7ZHP/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&th=1) but must be installed with th latest version of Ubuntu to support the N100 and hardware acceleration
+- [Beelink S12 Pro Mini PC](https://www.amazon.com/gp/product/B0BVLS7ZHP/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&th=1) but must be installed with the latest version of Ubuntu to support the N100 and hardware acceleration
 - [EmpireTech Ultra Low Light IPC-T54IR-ZE](https://www.amazon.com/gp/product/B08LCY27TD/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1) - this is a rebranded Dahua camera that is excellent at night as well as day.
 
 6. Draw zones in Frigate for where you want to detect objects.
