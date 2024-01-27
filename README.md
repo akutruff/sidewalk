@@ -79,7 +79,7 @@ You should pick a single storage location as your source of truth to store all f
 
 File structure:
 
-- `311-events/events` - Stores all events, 311 website screenshots, frigate metadata, and the service request number.  (NEVER delete anything in this directoy. It is your database of events that you have submitted to 311) Back this up to Google Drive or a similar service.
+- `311-events/events` - Stores all events, 311 website screenshots, frigate metadata, and the service request number.  (NEVER delete anything in this directory. It is your database of events that you have submitted to 311) Back this up to Google Drive or a similar service.
 - `311-events/events-staging` - Temporary storage for when you are reviewing clips and tracks how many times you removed them. This folder may be emptied.
 - `311-events/config` - Stores configuration files such as `service-request-definitions.json`
 
