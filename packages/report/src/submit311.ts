@@ -117,7 +117,8 @@ export function getServiceRequestDefinition(event: FrigateEvent) {
 
 export async function submitSidewalkComplaintTo311(db: EventDatabase, event: FrigateEvent, submissionId: number, isDryRun: boolean) {
 
-    const maxRetries = 100;
+    const maxRetries = 10;
+    let failedFileUploadAttempts = 0
 
     for (let i = 0; i < maxRetries; i++) {
         //Check if there is a file directly so there is a single source of truth for the event
@@ -171,12 +172,18 @@ export async function submitSidewalkComplaintTo311(db: EventDatabase, event: Fri
         let browser: Browser | null = null;
 
         try {
+            const connectionTimeout = 6 * 60 * 1000;
             browser = await puppeteer.connect({
                 // browserWSEndpoint: `ws://localhost:3000?token=${process.env.TOKEN}&launch={"args":["--window-size=1920,1080", "--disable-features=site-per-process", "--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage", "--disable-gpu",  "--no-first-run", "--disable-extensions", "--disable-features=IsolateOrigins"]}`,                
-                browserWSEndpoint: `ws://${process.env.BROWSERLESS_ADDRESS}?token=${process.env.TOKEN}`,
+                browserWSEndpoint: `ws://${process.env.BROWSERLESS_ADDRESS}?token=${process.env.TOKEN}&timeout=${connectionTimeout}`,
             });
 
             const page = await browser.newPage();
+
+            const pageTimeout = 60 * 1000;
+            page.setDefaultTimeout(pageTimeout);
+            page.setDefaultNavigationTimeout(pageTimeout);
+
             await page.emulateTimezone('America/New_York');
 
             await log.clog(`navigating to 311`);
@@ -238,62 +245,61 @@ export async function submitSidewalkComplaintTo311(db: EventDatabase, event: Fri
 
             await page.keyboard.type(incidentDateTime);
 
-            const shouldUse311FileUpload = true;
             let wasClipUploaded = false;
 
-            if (shouldUse311FileUpload) {
-                await clickXPath(page, "//*[@id='attachments-addbutton']")
+            await clickXPath(page, "//*[@id='attachments-addbutton']")
 
-                await log.clog(`uploading clip`);
+            await log.clog(`uploading clip`);
 
-                await sleep(100);
+            await sleep(100);
 
-                if (isSubmissionCanceled(submissionId)) {
-                    return;
+            if (isSubmissionCanceled(submissionId)) {
+                return;
+            }
+
+            const uploadFileInputHandle = await page.waitForSelector("input[type=file]");
+
+            if (!uploadFileInputHandle) {
+                throw new Error('uploadFileInputHandle not found')
+            }
+
+            await log.clog(`uploading file: ${paths.clipPathInBrowserlessContainer}`)
+            await uploadFileInputHandle.uploadFile(paths.clipPathInBrowserlessContainer);
+            await log.clog(`file uploaded`)
+
+            await sleep(200);
+            await log.clog(`waiting for modal to accept clip`);
+            await screenshot(page);
+
+            await clickXPath(page, "//div[contains(@class, 'modal-footer')]//button[contains(., 'Add Attachment')]");
+
+            await sleep(2000);
+
+            await log.clog(`attachment clicked`);
+
+            const maxChecksForFileUpload = 3;
+            for (let i = 0; i < maxChecksForFileUpload; i++) {
+                try {
+                    await page.waitForXPath("//*[@id='ServiceActivity']//p[contains(., 'sidewalk_rider_clip' )]", { timeout: 10000 });
+                    wasClipUploaded = true;
+                    await log.clog(`clip upload confirmed`);
+                    await screenshot(page);
+
+                    break;
                 }
-
-                const uploadFileInputHandle = await page.waitForSelector("input[type=file]");
-
-                if (!uploadFileInputHandle) {
-                    throw new Error('uploadFileInputHandle not found')
-                }
-
-                await log.clog(`uploading file: ${paths.clipPathInBrowserlessContainer}`)
-                await uploadFileInputHandle.uploadFile(paths.clipPathInBrowserlessContainer);
-                await log.clog(`file uploaded`)
-
-                await sleep(200);
-                await log.clog(`waiting for modal to accept clip`);
-                await screenshot(page);
-
-                await clickXPath(page, "//div[contains(@class, 'modal-footer')]//button[contains(., 'Add Attachment')]");
-
-                await sleep(2000);
-
-                await log.clog(`attachment clicked`);
-
-                const maxChecksForFileUpload = 3;
-                for (let i = 0; i < maxChecksForFileUpload; i++) {
-                    try {
-                        await page.waitForXPath("//*[@id='ServiceActivity']//p[contains(., 'sidewalk_rider_clip' )]", { timeout: 10000 });
-                        wasClipUploaded = true;
-                        await log.clog(`clip upload confirmed`);
-                        await screenshot(page);
-
-                        break;
-                    }
-                    catch {
-                        await sleep(200);
-                    }
+                catch {
+                    await sleep(200);
                 }
             }
+
 
             if (isSubmissionCanceled(submissionId)) {
                 return;
             }
 
             if (!wasClipUploaded) {
-                if (fallbackToUploadToAws && i >= maxRetriesBeforeS3Fallback) {
+                failedFileUploadAttempts++;
+                if (fallbackToUploadToAws && failedFileUploadAttempts > maxRetriesBeforeS3Fallback) {
                     await log.cerror(`${event.id} - File upload failed after ${i} attempts. falling back to S3.`);
                     await log.clog(`${event.id} - attempting to snap error page`);
                     await screenshot(page);
@@ -335,10 +341,7 @@ export async function submitSidewalkComplaintTo311(db: EventDatabase, event: Fri
 
             await sleep(200);
 
-            if (!await page.waitForSelector("#n311_description", { visible: true })) {
-                await log.clog('description not found')
-                return;
-            }
+            await page.waitForSelector("#n311_description", { visible: true })
 
             await page.focus('#n311_description');
 
@@ -366,7 +369,7 @@ export async function submitSidewalkComplaintTo311(db: EventDatabase, event: Fri
 
             await clickXPath(page, "//*[@id='NextButton']");
 
-            try { await page.waitForNavigation({ timeout: 10000 }); } catch { }
+            await page.waitForNavigation();
 
             await sleep(2000);
 
@@ -557,12 +560,16 @@ export async function submitEventRangeTo311(db: EventDatabase, lastRunTime: Date
 
         for (const event of events) {
             try {
-                await log.clog(`--- Submitting event: ${eventsSubmittedInCurrentBatch + 1} / ${eventCountInCurrentBatch} ---`);
-                if (isSubmissionCanceled(submissionId)) {
-                    await log.clog(`Submission canceled`);
-                    return;
-                }
-                await submitSidewalkComplaintTo311(db, event, submissionId, isDryRun);
+                await execWithRetryBackoff(async () => {
+                    if (isSubmissionCanceled(submissionId)) {
+                        await log.clog(`Submission canceled`);
+                        return;
+                    }
+                    await log.clog(`--- Submitting event: ${eventsSubmittedInCurrentBatch + 1} / ${eventCountInCurrentBatch} ---`);
+
+                    await submitSidewalkComplaintTo311(db, event, submissionId, isDryRun);
+                }, submissionId);
+
             } catch (e) {
                 await log.cerror(`error processing: ${event.id}`, e);
                 throw e;
@@ -576,3 +583,36 @@ export async function submitEventRangeTo311(db: EventDatabase, lastRunTime: Date
     }
 }
 
+
+export async function execWithRetryBackoff(func: () => Promise<void>, submissionId: number, maxRetries = 10) {
+    for (let i = 0; i < maxRetries; i++) {
+        if (isSubmissionCanceled(submissionId)) {
+            return;
+        }
+        try {
+            await func();
+            return;
+        }
+        catch (e) {
+            if (i >= maxRetries - 1) {
+                await log.cerror('max retries exceeded. throwing error.');
+                throw e;
+            }
+        }
+
+        const maxWaitTime = 10 * 60 * 1000;
+
+        const baseWaitTime = 10 * 1000;
+        const backoffWaitTime = Math.pow(2, i) * 1000;
+        const waitTime = Math.min(baseWaitTime + backoffWaitTime, maxWaitTime);
+
+        const startWait = Date.now();
+
+        while (Date.now() - startWait < waitTime) {
+            if (isSubmissionCanceled(submissionId)) {
+                return;
+            }
+            await sleep(1000)
+        }
+    }
+}

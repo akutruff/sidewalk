@@ -38,4 +38,6 @@ if [[ $? -ne 0 ]]; then
     docker buildx inspect --builder amd64-arm64-builder --bootstrap
 fi
 
-docker buildx build --builder amd64-arm64-builder --platform linux/amd64,linux/arm64 -t $TAG --push .
+# docker buildx build --builder amd64-arm64-builder --platform linux/amd64,linux/arm64 -t $TAG --push .
+# docker buildx build --builder amd64-arm64-builder --platform linux/amd64 -t $TAG --push .
+docker buildx build --builder amd64-arm64-builder --platform linux/arm64 -t $TAG --push .

@@ -21,20 +21,20 @@ services:
 
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
-    network_mode: host
+    # network_mode: host
 
-  browserless:
-    image: ghcr.io/browserless/chrome
-    # restart: always
-    environment:
-      - TZ=America/New_York
-      - CONNECTION_TIMEOUT=480000
-      - TOKEN=2cbc5771-38f2-4dcf-8774-50ad51a971b8
-    ports:
-      - 3000:3000
-    volumes:
-      - /d/311-events:/data:cached
-    network_mode: host
+  # browserless:
+  #   image: ghcr.io/browserless/chrome
+  #   # restart: always
+  #   environment:
+  #     - TZ=America/New_York
+  #     - CONNECTION_TIMEOUT=480000
+  #     - TOKEN=2cbc5771-38f2-4dcf-8774-50ad51a971b8
+  #   ports:
+  #     - 3000:3000
+  #   volumes:
+  #     - /d/311-events:/data:cached
+  #   network_mode: host
 
 volumes:
   aws-credentials: {}
