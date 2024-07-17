@@ -7,7 +7,6 @@ services:
     restart: always
     environment:
       - TZ=America/New_York
-      - CONNECTION_TIMEOUT=480000
       - TOKEN=${TOKEN}
     ports:
       - 3000:3000
